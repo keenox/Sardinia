@@ -15,4 +15,4 @@ $this->menu=array(
 
 <h1>Account <?php echo $update_type; ?></h1>
 
-<?php echo $this->renderPartial($update_type, array('model'=>$model,'profile'=>$profile)); ?>
+<?php echo $this->renderPartial('_account_'.$update_type, array('model'=>$model,'profile'=>$profile)); ?>

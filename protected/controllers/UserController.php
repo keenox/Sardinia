@@ -147,7 +147,7 @@ class UserController extends Controller
 			throw new CHttpException(404);
 		
 		$this->render('update',array(
-			'update_type'=>'_account_'.$type,
+			'update_type'=>$type,
 			'model'=>$model,
 			'profile'=>$profile,
 		));
