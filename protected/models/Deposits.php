@@ -43,13 +43,14 @@ class Deposits extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('amount, payment_method', 'required'),
-			array('amount', 'numerical', 'min'=>500),
-			array('amount, payment_method', 'safe'),
+			array('credits, payment_method', 'required'),
+			array('credits', 'numerical', 'min'=>500),
+			array('credits', 'numerical', 'max'=>500000),
+			array('credits, payment_method', 'safe'),
 			array('payment_method', 'exist', 'className'=>'PaymentMethods', 'attributeName' => 'id'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, amount, client_id, order_placed, order_modified, payment_method, status, client_ip', 'safe', 'on'=>'search'),
+			array('id, credits, amount, client_id, order_placed, order_modified, payment_method, status, additional_info, client_ip', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -62,6 +63,7 @@ class Deposits extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'client' => array(self::BELONGS_TO, 'User', 'client_id'),
+			//'groups' => array(self::MANY_MANY,'Group','tbl_usergroup(personId,groupId)',
 		);
 	}
 
@@ -73,11 +75,13 @@ class Deposits extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'amount' => 'Amount',
+                        'credits' => 'Credits',
 			'client_id' => 'Client',
 			'order_placed' => 'Order Placed',
 			'order_modified' => 'Order Modified',
 			'payment_method' => 'Payment Method',
 			'status' => 'Status',
+                        'additional_info' => 'Additional Info',
 			'client_ip' => 'Client Ip',
 		);
 	}
@@ -95,11 +99,13 @@ class Deposits extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('amount',$this->amount);
+                $criteria->compare('credits',$this->amount);
 		$criteria->compare('client_id',$this->client_id);
 		$criteria->compare('order_placed',$this->order_placed,true);
 		$criteria->compare('order_modified',$this->order_modified,true);
 		$criteria->compare('payment_method',$this->payment_method);
 		$criteria->compare('status',$this->status,true);
+                $criteria->compare('additional_info',$this->additional_info,true);
 		$criteria->compare('client_ip',$this->client_ip,true);
 
 		return new CActiveDataProvider($this, array(

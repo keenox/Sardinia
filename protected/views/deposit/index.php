@@ -10,13 +10,13 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'amount'); ?>
-		<?php echo $form->textField($model,'amount'); ?>
-		<?php echo $form->error($model,'amount'); ?>
+		<?php echo $form->labelEx($model,'credits'); ?>
+		<?php echo $form->textField($model,'credits'); ?>
+		<?php echo $form->error($model,'credits'); ?>
 	</div>
 
 	<div class="row">
-		Choose a payment method:
+		<?php echo "<b>Choose a payment method:</b>"; ?>
         <?php echo $form->error($model,'payment_method'); ?>
     </div>
     
@@ -40,7 +40,7 @@
 			$drop_down_array[$key] = translate($val); 
 		}
 		?>
-		<?php echo $form->radioButtonList($model,'payment_method', $drop_down_array); ?>
+		<?php echo $form->dropDownList($model,'payment_method', $drop_down_array); /*$form->radioButtonList($model,'payment_method', $drop_down_array);*/ ?>
 	</div>
     
     <div class="row">&nbsp;</div>
