@@ -104,8 +104,7 @@
 										'buttonImageOnly'=>'true',
 										'buttonImage'=>Yii::app()->baseUrl.'/images/calendar.png',
 										'dateFormat'=>'yy-mm-dd',
-										'yearRange'=>'c-90:c-18',
-										'yearRange'=>'c-90:c-18',
+										'yearRange'=>'-90:-18',
 										'changeYear'=>'true',		
 								    ),
 								    'htmlOptions'=>array(
