@@ -62,7 +62,7 @@ return array(
 		// uncomment the following to use a MySQL database
 		
 		'db'=>array(
-			'connectionString' => 'mysql:host=sql09.freemysql.net;dbname=dbsardinia',
+			'connectionString' => 'mysql:host=db4free.net;dbname=dbsardinia',
 			'emulatePrepare' => true,
 			'username' => 'keenox',
 			'password' => 'newpanasonic1',

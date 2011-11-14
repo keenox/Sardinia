@@ -40,13 +40,12 @@ class PaymentMethods extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('code, payment_page, landing_page, deposit_active, withdraw_active, deposit_fee, withdraw_fee', 'required'),
+			array('code, deposit_active, withdraw_active, deposit_fee, withdraw_fee', 'required'),
 			array('deposit_active, withdraw_active, deposit_fee, withdraw_fee', 'numerical', 'integerOnly'=>true),
 			array('code', 'length', 'max'=>3),
-			array('payment_page, landing_page', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, code, payment_page, landing_page, deposit_active, withdraw_active, deposit_fee, withdraw_fee', 'safe', 'on'=>'search'),
+			array('id, code, deposit_active, withdraw_active, deposit_fee, withdraw_fee', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -69,8 +68,6 @@ class PaymentMethods extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'code' => 'Code',
-			'payment_page' => 'Payment Page',
-			'landing_page' => 'Landing Page',
 			'deposit_active' => 'Deposit Active',
 			'withdraw_active' => 'Withdraw Active',
 			'deposit_fee' => 'Deposit Fee',
@@ -91,8 +88,6 @@ class PaymentMethods extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('code',$this->code,true);
-		$criteria->compare('payment_page',$this->payment_page,true);
-		$criteria->compare('landing_page',$this->landing_page,true);
 		$criteria->compare('deposit_active',$this->deposit_active);
 		$criteria->compare('withdraw_active',$this->withdraw_active);
 		$criteria->compare('deposit_fee',$this->deposit_fee);
