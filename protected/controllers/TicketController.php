@@ -1,6 +1,6 @@
 <?php
 
-class UserController extends Controller
+class TicketController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -8,17 +8,6 @@ class UserController extends Controller
 	 */
 	public $layout='//layouts/column2';
 
-	public function actions()
-	{
-		return array(
-			// captcha action renders the CAPTCHA image displayed on the contact page
-			'captcha'=>array(
-				'class'=>'CCaptchaAction',
-				'backColor'=>0xFFFFFF,
-			),
-		);
-	}
-	
 	/**
 	 * @return array action filters
 	 */
@@ -37,21 +26,13 @@ class UserController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',
-				'actions'=>array('create'),
-				'users'=>array('?'),
-			),
-			array('allow',
-				'actions'=>array('captcha'),
+			array('allow',  // allow all users to perform 'index' and 'view' actions
+				'actions'=>array('index','view'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('update'),
-				'expression'=>(array_key_exists('id', $this->actionParams))?($this->actionParams['id'].' == $user->id'):'false',
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
+				'actions'=>array('create','update','admin','delete'),
+				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -65,9 +46,27 @@ class UserController extends Controller
 	 */
 	public function actionView($id)
 	{
+		$message = new TicketMessage();
+		$model = $this->loadModel($id);
+		
+		if(isset($_POST['TicketMessage']))
+		{
+			$message->attributes = $_POST['TicketMessage'];
+			$message->ticket_id = $model->id;
+			$message->user_id = Yii::app()->user->id;
+			$message->admin_id = $model->admin_id;
+			$message->created = date('Y-m-d H:i:s');
+			$message->ip = $_SERVER['REMOTE_ADDR'];			
+					
+			$message->save();
+		}
+		
+		$message->message = '';
+		
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
-		));
+				'model'=>$model,
+				'newMessage'=>$message,
+			));
 	}
 
 	/**
@@ -76,35 +75,43 @@ class UserController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new User;
-		$profile=new UserProfile;
-		
-		$model->setScenario('create');
-		$profile->setScenario('create');
+		$model=new Ticket;
+
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['User']) && isset($_POST['UserProfile']))
+		if(isset($_POST['Ticket']))
 		{
-			$model->attributes=$_POST['User'];
-			$profile->attributes=$_POST['UserProfile'];
+			$model->attributes=$_POST['Ticket'];
+			$model->created = date('Y-m-d H:i:s');
+			$model->user_id = Yii::app()->user->id;
 			
-			$model_ok = $model->save();
-			if ($model_ok)
+			if($model->save())
 			{
-				$profile->id = $model->id;
-				$profile_ok = $profile->save();
+				$message = new TicketMessage();
 				
-				if ($profile_ok)
+				$message->message = $model->message;
+				$message->ticket_id = $model->id;
+				$message->user_id = $model->user_id;
+				$message->admin_id = $model->admin_id;
+				$message->created = date('Y-m-d H:i:s');
+				$message->ip = $_SERVER['REMOTE_ADDR'];
+				
+				if ($message->save())
+				{
+					Yii::app()->user->setFlash('msg',array('title'=>'Success','content'=>'Ticket created!'));
 					$this->redirect(array('view','id'=>$model->id));
-				else
-					$model->delete();
-			}			
+				}
+				else 
+				{
+					Yii::app()->user->setFlash('msg',array('title'=>'Error','content'=>'There was an error creating the ticket!<br />'.CHtml::errorSummary($model).CHtml::errorSummary($message)));
+					$model->delete();					
+				}
+			}
 		}
 
 		$this->render('create',array(
 			'model'=>$model,
-			'profile'=>$profile,
 		));
 	}
 
@@ -113,50 +120,25 @@ class UserController extends Controller
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
-	public function actionUpdate($id,$type)
+	public function actionUpdate($id)
 	{
-		$model=User::model()->findByPk($id);
-		$profile=UserProfile::model()->findByPk($id);
-		
-		$model->setScenario('update');
-		$profile->setScenario('update');
-		
+		$model=$this->loadModel($id);
+
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['User']) && isset($_POST['UserProfile']))
+		if(isset($_POST['Ticket']))
 		{
-			$model->attributes=$_POST['User'];
-			$profile->attributes=$_POST['UserProfile'];
-			
-			$model->confirmed=1;
-			$model->verified=1;
-			
-			$model_ok = $model->save();
-			if ($model_ok)
-			{
-				$profile->id = $model->id;
-				$profile_ok = $profile->save();
-				
-				if ($profile_ok)
-				{
-					Yii::app()->user->setFlash('msg',array('title'=>'Success','content'=>'You have successfully updated your info!'));
-					$this->redirect(array('update','id'=>$model->id,'type'=>$type));
-				}
-				else
-					$model->delete();
-			}			
+			$model->attributes=$_POST['Ticket'];
+			if($model->save())
+				$this->redirect(array('view','id'=>$model->id));
 		}
 
-		if (!in_array($type, array('details','security'),true))
-			throw new CHttpException(404);
-		
 		$this->render('update',array(
-			'update_type'=>$type,
 			'model'=>$model,
-			'profile'=>$profile,
 		));
 	}
+
 	/**
 	 * Deletes a particular model.
 	 * If deletion is successful, the browser will be redirected to the 'admin' page.
@@ -182,7 +164,7 @@ class UserController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('User');
+		$dataProvider=new CActiveDataProvider('Ticket');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -193,10 +175,10 @@ class UserController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new User('search');
+		$model=new Ticket('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['User']))
-			$model->attributes=$_GET['User'];
+		if(isset($_GET['Ticket']))
+			$model->attributes=$_GET['Ticket'];
 
 		$this->render('admin',array(
 			'model'=>$model,
@@ -210,7 +192,7 @@ class UserController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=User::model()->findByPk($id);
+		$model=Ticket::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -222,7 +204,7 @@ class UserController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='user-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='ticket-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

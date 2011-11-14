@@ -49,6 +49,8 @@
 		)); ?><!-- breadcrumbs -->
 	<?php endif?>
 
+	<?php $this->renderPartial('//site/_message'); ?>
+
 	<?php echo $content; ?>
 
 	<div id="footer">
