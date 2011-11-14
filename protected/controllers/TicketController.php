@@ -8,6 +8,7 @@ class TicketController extends Controller
 	 */
 	public $layout='//layouts/column2';
 
+	public $defaultAction = 'admin';
 	
 	public function actions()
 	{
@@ -39,13 +40,17 @@ class TicketController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','captcha'),
+				'actions'=>array('captcha'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','admin','delete'),
+				'actions'=>array('create','update','admin','delete','view'),
 				'users'=>array('@'),
 			),
+			array('allow', // allow authenticated user to perform 'create' and 'update' actions
+				'actions'=>array('assign'),
+				'expression'=>'$user->type==\'admin\'',
+			),			
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
@@ -60,13 +65,16 @@ class TicketController extends Controller
 	{
 		$message = new TicketMessage();
 		$model = $this->loadModel($id);
+		$user = Yii::app()->user;
 		
 		if(isset($_POST['TicketMessage']))
 		{
 			$message->attributes = $_POST['TicketMessage'];
 			$message->ticket_id = $model->id;
-			$message->user_id = Yii::app()->user->id;
-			$message->admin_id = $model->admin_id;
+			if ($user->type == 'user')
+				$message->user_id = $user->id;
+			if ($user->type == 'admin')
+				$message->admin_id = $user->id;
 			$message->created = date('Y-m-d H:i:s');
 			$message->ip = $_SERVER['REMOTE_ADDR'];			
 					
@@ -88,7 +96,8 @@ class TicketController extends Controller
 	public function actionCreate()
 	{
 		$model=new Ticket;
-
+		$model->scenario = 'create';
+		$user = Yii::app()->user;
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
@@ -96,7 +105,13 @@ class TicketController extends Controller
 		{
 			$model->attributes=$_POST['Ticket'];
 			$model->created = date('Y-m-d H:i:s');
-			$model->user_id = Yii::app()->user->id;
+
+			if ($user->type == 'user')
+				$model->user_id = $user->id;
+			if ($user->type == 'admin')
+				$model->admin_id = $user->id;
+			
+			$model->status = 'pending';
 			
 			if($model->save())
 			{
@@ -127,6 +142,22 @@ class TicketController extends Controller
 		));
 	}
 
+	public function actionAssign($id)
+	{
+		$model=$this->loadModel($id);
+		$model->scenario = 'assign';
+		
+		if (empty($model->admin_id))
+		{
+			$model->admin_id = Yii::app()->user->id;
+			$model->status = 'active';
+			$model->save();
+			//Yii::app()->user->setFlash('msg',array('title'=>'Summary','content'=>CHtml::errorSummary($model)));
+		}
+
+		$this->redirect(array('view','id'=>$model->id));
+	}
+	
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
@@ -135,6 +166,7 @@ class TicketController extends Controller
 	public function actionUpdate($id)
 	{
 		$model=$this->loadModel($id);
+		$model->scenario = 'update';
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -160,9 +192,11 @@ class TicketController extends Controller
 	{
 		if(Yii::app()->request->isPostRequest)
 		{
-			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
-
+			$model = $this->loadModel($id);
+			$model->scenario = 'delete';
+			
+			$model->status = 'inactive';
+			$model->save();
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
 			if(!isset($_GET['ajax']))
 				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));

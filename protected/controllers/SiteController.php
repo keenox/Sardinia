@@ -70,7 +70,7 @@ class SiteController extends Controller
 	/**
 	 * Displays the login page
 	 */
-	public function actionLogin()
+	public function actionLogin($type='user')
 	{
 		$model=new LoginForm;
 
@@ -78,6 +78,7 @@ class SiteController extends Controller
 		if(isset($_POST['ajax']) && $_POST['ajax']==='login-form')
 		{
 			echo CActiveForm::validate($model);
+			$model->type = $type;
 			Yii::app()->end();
 		}
 
@@ -85,6 +86,7 @@ class SiteController extends Controller
 		if(isset($_POST['LoginForm']))
 		{
 			$model->attributes=$_POST['LoginForm'];
+			$model->type = $type;
 			// validate user input and redirect to the previous page if valid
 			if($model->validate() && $model->login())
 				$this->redirect(Yii::app()->user->returnUrl);
@@ -92,7 +94,7 @@ class SiteController extends Controller
 		// display the login form
 		$this->render('login',array('model'=>$model));
 	}
-
+	
 	/**
 	 * Logs out the current user and redirect to homepage.
 	 */

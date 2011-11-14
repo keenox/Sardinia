@@ -36,6 +36,13 @@ class TicketMessage extends CActiveRecord
 		return 'ticket_message';
 	}
 
+	public function save()
+	{
+		if ($this->isNewRecord)
+			$this->message = nl2br(htmlentities($this->message));
+		return parent::save();		
+	}
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 */

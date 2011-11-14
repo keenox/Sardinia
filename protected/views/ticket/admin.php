@@ -44,12 +44,29 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'columns'=>array(
 		'id',
 		'user_id',
-		'admin_id',
+		array(
+				'header'=>'Assigned to',
+				'name'=>'admin_id',
+				'filter'=>CHtml::activeDropDownList($model,'admin_id',
+										array(null=>'All',0=>'noone') + 
+										((Yii::app()->user->type=='admin')?array(Yii::app()->user->id=>'Me'):array()) +
+										CHtml::listData(Ticket::model()->findAll(),'admin_id','admin_id')
+										),
+		),
 		'subject',
 		'created',
 		'status',
 		array(
 			'class'=>'CButtonColumn',
+			'template'=>'{view}{delete}{assign}',
+			'buttons'=>array(
+								'assign'=>array(
+											'label'=>'Assign',
+											'imageUrl'=>Yii::app()->baseUrl.'/images/hand_property.png',
+											'url'=>'Yii::app()->createUrl(\'ticket/assign\',array(\'id\'=>$data->id))',
+											'visible'=>'Yii::app()->user->type==\'admin\' && $data->admin_id===null',
+											),
+							),
 		),
 	),
 )); ?>

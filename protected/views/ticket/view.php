@@ -15,7 +15,7 @@ $this->menu=array(
 
 <em>Ticket #<?php echo $model->id; ?></em>
 <h2><?php echo $model->subject; ?></h2>
-<span>Created: <?php echo $model->created;?></span>&nbsp;<span>Assigned admin: <?php echo $model->admin;?></span>
+<span>Created: <?php echo $model->created;?></span>&nbsp;<span>Assigned admin: <?php echo ($model->admin)?$model->admin->user:'none';?></span>
 
 <?php 
 	$messages = TicketMessage::model()->with(array('ticket'=>array('condition'=>'ticket_id='.$model->id)))->findAll();
@@ -23,9 +23,9 @@ $this->menu=array(
 	for ($i=0;$i<sizeof($messages);$i++)
 	{
 		?>
-		<div style="border:1px solid #000; padding-bottom:5px; margin-bottom:10px;">
+		<div style="border:1px solid #000; padding-bottom:5px; margin-bottom:10px;width:75%;float:<?php echo (($messages[$i]->user_id>0)?'left':'right')?>">
 			<div style="background-color:#ddd;font-weight:bold;width:100%;">
-				Posted by <?php echo $messages[$i]->user_id; ?> at <?php echo $messages[$i]->created; ?> from IP <?php echo $messages[$i]->ip; ?>  
+				Posted by <?php echo (($messages[$i]->user_id>0)?('user '.$messages[$i]->user_id):('admin '.$messages[$i]->admin_id))?> at <?php echo $messages[$i]->created; ?> from IP <?php echo $messages[$i]->ip; ?>  
 			</div>
 			<div style="padding:5px;" >
 				<?php echo $messages[$i]->message; ?>

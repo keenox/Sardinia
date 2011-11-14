@@ -10,7 +10,7 @@ class WebUser extends CWebUser {
 	*/
 
 	
-// Store model to not repeat query.
+  // Store model to not repeat query.
   private $_model;
   
   
@@ -28,10 +28,8 @@ class WebUser extends CWebUser {
             $profile = UserProfile::model()->findByPk($id);
             
             $this->_model=$user->attributes
-            			+ $profile->attributes + array('JustLoaded'=>true);
+            			+ $profile->attributes;
         }
-        else
-        	$this->_model+=array('JustLoaded'=>false);
         	
         return $this->_model;
     }

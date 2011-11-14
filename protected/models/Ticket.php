@@ -45,11 +45,11 @@ class Ticket extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('subject, created, message', 'required'),
+			array('subject, created, message', 'required','on'=>array('create')),
 			array('user_id, admin_id', 'numerical', 'integerOnly'=>true),
 			array('subject', 'length', 'max'=>30),
 			array('status', 'length', 'max'=>10),
-			array('verifyCode','captcha'),
+			array('verifyCode','captcha','on'=>array('create')),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, user_id, admin_id, subject, created, status', 'safe', 'on'=>'search'),
@@ -93,15 +93,24 @@ class Ticket extends CActiveRecord
 	{
 		// Warning: Please modify the following code to remove attributes that
 		// should not be searched.
-
+		$user = Yii::app()->user;
+		
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('user_id',$this->user_id);
-		$criteria->compare('admin_id',$this->admin_id);
+		if ($user->type == 'user')
+			$criteria->compare('user_id',$user->id);
+
+		//if ($user->type == 'admin')
+			//$criteria->addCondition('(t.admin_id = '.$user->id.' OR t.admin_id IS NULL)');
+		$criteria->compare('admin_id',$this->admin_id,true);
 		$criteria->compare('subject',$this->subject,true);
 		$criteria->compare('created',$this->created,true);
-		$criteria->compare('status',$this->status,true);
+		if ($user->type == 'admin')
+			$criteria->compare('status',$this->status,true);
+		if ($user->type == 'user')
+			$criteria->compare('status','<>inactive',true);
+			
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
