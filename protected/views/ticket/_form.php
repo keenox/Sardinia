@@ -20,6 +20,23 @@
 		<?php echo $form->error($model,'message'); ?>
 	</div>
 
+	<?php
+	if(CCaptcha::checkRequirements()): ?>
+	<div class="row">
+		<?php echo $form->labelEx($model,'verifyCode'); ?>
+		<br />
+		<div>
+		<?php $this->widget('CCaptcha'); ?>
+		<br />
+		<?php echo $form->textField($model,'verifyCode'); ?>
+		<br />
+		</div>
+		<div class="hint">Enter the characters above.
+		<br/>Caps don't matter.</div>
+		<?php echo $form->error($model,'verifyCode'); ?>
+	</div>
+	<?php endif;?>
+
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
 	</div>

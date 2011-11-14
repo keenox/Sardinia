@@ -14,7 +14,7 @@ $this->menu=array(
 ?>
 
 <em>Ticket #<?php echo $model->id; ?></em>
-<h2><?php $model->subject; ?></h2>
+<h2><?php echo $model->subject; ?></h2>
 <span>Created: <?php echo $model->created;?></span>&nbsp;<span>Assigned admin: <?php echo $model->admin;?></span>
 
 <?php 

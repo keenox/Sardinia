@@ -18,6 +18,7 @@
  */
 class Ticket extends CActiveRecord
 {
+	public $verifyCode;
 	public $message;	
 	/**
 	 * Returns the static model of the specified AR class.
@@ -48,6 +49,7 @@ class Ticket extends CActiveRecord
 			array('user_id, admin_id', 'numerical', 'integerOnly'=>true),
 			array('subject', 'length', 'max'=>30),
 			array('status', 'length', 'max'=>10),
+			array('verifyCode','captcha'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, user_id, admin_id, subject, created, status', 'safe', 'on'=>'search'),

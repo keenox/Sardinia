@@ -61,11 +61,21 @@ return array(
 		*/
 		// uncomment the following to use a MySQL database
 		
+		/*
 		'db'=>array(
 			'connectionString' => 'mysql:host=db4free.net;dbname=dbsardinia',
 			'emulatePrepare' => true,
 			'username' => 'keenox',
 			'password' => 'newpanasonic1',
+			'charset' => 'utf8',
+		),
+		*/
+		
+		'db'=>array(
+			'connectionString' => 'mysql:host=localhost;dbname=464428',
+			'emulatePrepare' => true,
+			'username' => 'root',
+			'password' => 'radu2205',
 			'charset' => 'utf8',
 		),
 		
